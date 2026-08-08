@@ -471,7 +471,7 @@ class _MissionDossier extends StatelessWidget {
               Expanded(
                 child: _MissionFact(
                   label: lang == AppLang.de ? 'ZEITRAUM' : 'TIMELINE',
-                  value: '14Y / 29T',
+                  value: lang == AppLang.de ? '14 J / 29 R' : '14Y / 29T',
                 ),
               ),
               const SizedBox(width: 8),
@@ -485,7 +485,7 @@ class _MissionDossier extends StatelessWidget {
               Expanded(
                 child: _MissionFact(
                   label: lang == AppLang.de ? 'KERN' : 'CORE',
-                  value: 'W20',
+                  value: strings.die,
                 ),
               ),
             ],

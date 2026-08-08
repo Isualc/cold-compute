@@ -17,6 +17,12 @@ class LogPanel extends StatelessWidget {
   /// Höchstens so viele (neueste) Einträge zeigen. Null = alle.
   final int? limit;
 
+  /// Kopfzeile als Auf-/Zuklapp-Schalter rendern. Der Zustand liegt beim
+  /// Eltern-Widget, weil sich am Desktop die Spaltenaufteilung mitändert.
+  final bool collapsible;
+  final bool collapsed;
+  final VoidCallback? onToggle;
+
   const LogPanel({
     super.key,
     required this.entries,
@@ -24,28 +30,71 @@ class LogPanel extends StatelessWidget {
     this.padding = const EdgeInsets.fromLTRB(16, 14, 16, 28),
     this.embedded = false,
     this.limit,
+    this.collapsible = false,
+    this.collapsed = false,
+    this.onToggle,
   });
 
   @override
   Widget build(BuildContext context) {
     final all = entries.reversed.toList();
     final reversed = limit == null ? all : all.take(limit!).toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-          child: SectionLabel(
-            Strings(lang).protocol,
-            color: AppTheme.amber,
-            trailing: StatusPill(
+    final showBody = !(collapsible && collapsed);
+
+    Widget header = Padding(
+      padding: EdgeInsets.fromLTRB(16, 14, 16, showBody ? 8 : 14),
+      child: SectionLabel(
+        Strings(lang).protocol,
+        color: AppTheme.amber,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            StatusPill(
               label:
                   '${entries.length} ${lang == AppLang.de ? 'Einträge' : 'entries'}',
               color: AppTheme.textSecondary,
               icon: Icons.history,
             ),
-          ),
+            if (collapsible) ...[
+              const SizedBox(width: 6),
+              AnimatedRotation(
+                turns: collapsed ? -.25 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: const Icon(
+                  Icons.expand_more,
+                  size: 18,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ],
         ),
+      ),
+    );
+    if (collapsible) {
+      header = Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onToggle,
+          child: header,
+        ),
+      );
+    }
+
+    if (!showBody) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [header],
+      );
+    }
+
+    return Column(
+      mainAxisSize: embedded ? MainAxisSize.min : MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        header,
         if (reversed.isEmpty)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),

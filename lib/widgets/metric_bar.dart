@@ -27,7 +27,9 @@ class MetricBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '${metric.label(lang)} ${value.round()} von 100',
+      label:
+          '${metric.label(lang)} ${value.round()} '
+          '${lang == AppLang.de ? 'von' : 'of'} 100',
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: dense ? 4 : 6),
         child: Column(

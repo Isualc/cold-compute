@@ -340,7 +340,7 @@ class _SituationHeader extends StatelessWidget {
   }
 }
 
-class _MobileCommandCenter extends StatelessWidget {
+class _MobileCommandCenter extends StatefulWidget {
   final GameProvider provider;
   final VoidCallback onNextTurn;
   final bool advancing;
@@ -351,11 +351,20 @@ class _MobileCommandCenter extends StatelessWidget {
     required this.advancing,
   });
 
+  @override
+  State<_MobileCommandCenter> createState() => _MobileCommandCenterState();
+}
+
+class _MobileCommandCenterState extends State<_MobileCommandCenter> {
+  /// Auch mobil startet die Chronik eingeklappt — die Entscheidungen und
+  /// Operationen stehen im Vordergrund.
+  bool _logCollapsed = true;
+
   /// Mobil zeigt dieselbe Lage wie am Desktop, nur untereinander:
   /// Zeitleiste, Weltkarte, Metriken, Briefing, Operationen, Chronik.
   @override
   Widget build(BuildContext context) {
-    final state = provider.state!;
+    final state = widget.provider.state!;
     final strings = Strings(state.lang);
     final de = state.lang == AppLang.de;
 
@@ -382,21 +391,21 @@ class _MobileCommandCenter extends StatelessWidget {
         _LatestSignal(state: state),
         const SizedBox(height: 16),
         SectionLabel(
-          provider.currentDecision != null
+          widget.provider.currentDecision != null
               ? strings.decision
               : (de ? 'Briefing' : 'Briefing'),
-          color: provider.currentDecision != null
+          color: widget.provider.currentDecision != null
               ? AppTheme.danger
               : AppTheme.tealBright,
         ),
         const SizedBox(height: 8),
         _MobileBriefing(
-          provider: provider,
-          onNextTurn: onNextTurn,
-          advancing: advancing,
+          provider: widget.provider,
+          onNextTurn: widget.onNextTurn,
+          advancing: widget.advancing,
         ),
         const SizedBox(height: 18),
-        ...OpsPanel(provider: provider).buildSections(context),
+        ...OpsPanel(provider: widget.provider).buildSections(context),
         const SizedBox(height: 6),
         GlassPanel(
           padding: EdgeInsets.zero,
@@ -406,6 +415,9 @@ class _MobileCommandCenter extends StatelessWidget {
             lang: state.lang,
             embedded: true,
             limit: 12,
+            collapsible: true,
+            collapsed: _logCollapsed,
+            onToggle: () => setState(() => _logCollapsed = !_logCollapsed),
             padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
           ),
         ),
@@ -497,7 +509,7 @@ class _MobileBriefing extends StatelessWidget {
   }
 }
 
-class _DesktopCommandCenter extends StatelessWidget {
+class _DesktopCommandCenter extends StatefulWidget {
   final GameProvider provider;
   final VoidCallback onNextTurn;
   final bool advancing;
@@ -509,8 +521,24 @@ class _DesktopCommandCenter extends StatelessWidget {
   });
 
   @override
+  State<_DesktopCommandCenter> createState() => _DesktopCommandCenterState();
+}
+
+class _DesktopCommandCenterState extends State<_DesktopCommandCenter> {
+  /// Die Chronik startet eingeklappt, damit die Operationen die volle
+  /// Spaltenhöhe bekommen.
+  bool _logCollapsed = true;
+
+  @override
   Widget build(BuildContext context) {
-    final state = provider.state!;
+    final state = widget.provider.state!;
+    final log = LogPanel(
+      entries: state.log,
+      lang: state.lang,
+      collapsible: true,
+      collapsed: _logCollapsed,
+      onToggle: () => setState(() => _logCollapsed = !_logCollapsed),
+    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 5, 12, 12),
       child: Row(
@@ -520,8 +548,8 @@ class _DesktopCommandCenter extends StatelessWidget {
             width: 360,
             child: _WorldOverview(
               state: state,
-              onNextTurn: onNextTurn,
-              advancing: advancing,
+              onNextTurn: widget.onNextTurn,
+              advancing: widget.advancing,
               dense: true,
             ),
           ),
@@ -532,9 +560,9 @@ class _DesktopCommandCenter extends StatelessWidget {
               child: ColoredBox(
                 color: AppTheme.bg.withValues(alpha: .3),
                 child: _MainPanel(
-                  provider: provider,
-                  onNextTurn: onNextTurn,
-                  advancing: advancing,
+                  provider: widget.provider,
+                  onNextTurn: widget.onNextTurn,
+                  advancing: widget.advancing,
                 ),
               ),
             ),
@@ -550,20 +578,23 @@ class _DesktopCommandCenter extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     blur: false,
                     child: OpsPanel(
-                      provider: provider,
+                      provider: widget.provider,
                       padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
-                Expanded(
-                  flex: 4,
-                  child: GlassPanel(
-                    padding: EdgeInsets.zero,
-                    blur: false,
-                    child: LogPanel(entries: state.log, lang: state.lang),
+                if (_logCollapsed)
+                  GlassPanel(padding: EdgeInsets.zero, blur: false, child: log)
+                else
+                  Expanded(
+                    flex: 4,
+                    child: GlassPanel(
+                      padding: EdgeInsets.zero,
+                      blur: false,
+                      child: log,
+                    ),
                   ),
-                ),
               ],
             ),
           ),

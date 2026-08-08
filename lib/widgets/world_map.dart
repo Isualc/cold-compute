@@ -303,7 +303,8 @@ class _EscalationPill extends StatelessWidget {
     final stage = EscalationStage.of(escalation);
     return StatusPill(
       label:
-          '${stage.code} · ${stage.label.t(state.lang)} ${escalation.round()}',
+          '${stage.code.t(state.lang)} · ${stage.label.t(state.lang)} '
+          '${escalation.round()}',
       color: stage.color,
       icon: escalation >= 60
           ? Icons.warning_amber_rounded
@@ -318,7 +319,7 @@ class _EscalationPill extends StatelessWidget {
 class EscalationStage {
   final LText label;
   final Color color;
-  final String code;
+  final LText code;
 
   const EscalationStage(this.label, this.color, this.code);
 
@@ -327,34 +328,34 @@ class EscalationStage {
       return const EscalationStage(
         LText('Kriegsgefahr', 'Imminent conflict'),
         AppTheme.danger,
-        'STUFE 5',
+        LText('STUFE 5', 'LEVEL 5'),
       );
     }
     if (escalation >= 60) {
       return const EscalationStage(
         LText('Krise', 'Crisis'),
         AppTheme.red,
-        'STUFE 4',
+        LText('STUFE 4', 'LEVEL 4'),
       );
     }
     if (escalation >= 40) {
       return const EscalationStage(
         LText('Spannung', 'Tension'),
         AppTheme.amber,
-        'STUFE 3',
+        LText('STUFE 3', 'LEVEL 3'),
       );
     }
     if (escalation >= 20) {
       return const EscalationStage(
         LText('Erhöhte Wachsamkeit', 'Heightened alert'),
         AppTheme.blue,
-        'STUFE 2',
+        LText('STUFE 2', 'LEVEL 2'),
       );
     }
     return const EscalationStage(
       LText('Friedenslage', 'Peacetime posture'),
       AppTheme.green,
-      'STUFE 1',
+      LText('STUFE 1', 'LEVEL 1'),
     );
   }
 }

@@ -295,4 +295,36 @@ void main() {
     );
     expect(find.text('PROTOKOLL'), findsOneWidget);
   });
+
+  testWidgets('Desktop: Chronik startet eingeklappt und öffnet per Kopfzeile', (
+    tester,
+  ) async {
+    // 1600 px Breite: Desktop-Layout UND aktiver UI-Zoom (1600/1440 ≈ 1,11).
+    tester.view.physicalSize = const Size(1600, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const ColdComputeApp());
+    await tester.pumpAndSettle();
+
+    final newGame = find.byKey(const ValueKey('new_game_button'));
+    await tester.ensureVisible(newGame);
+    await tester.tap(newGame);
+    await tester.pumpAndSettle();
+
+    // Kommandozentrale: Ops-Spalte sichtbar, Chronik nur als Kopfzeile.
+    expect(find.text('VERDECKTE OPERATIONEN'), findsOneWidget);
+    expect(find.text('PROTOKOLL'), findsOneWidget);
+    expect(find.byKey(const PageStorageKey('chronicle')), findsNothing);
+
+    // Tap auf die Kopfzeile öffnet die volle Chronik, zweiter Tap schließt.
+    await tester.tap(find.text('PROTOKOLL'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const PageStorageKey('chronicle')), findsOneWidget);
+
+    await tester.tap(find.text('PROTOKOLL'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const PageStorageKey('chronicle')), findsNothing);
+  });
 }

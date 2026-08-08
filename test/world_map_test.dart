@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cold_compute/models/game_state.dart';
+import 'package:cold_compute/models/lang.dart';
 import 'package:cold_compute/models/metrics.dart';
 import 'package:cold_compute/theme.dart';
 import 'package:cold_compute/widgets/world_map.dart';
@@ -11,9 +12,14 @@ void main() {
     WorldSituationMap.loopAnimation = false;
   });
 
-  Future<void> pumpMap(WidgetTester tester, double escalation) async {
-    final state = GameState.newGame(seed: 1, roleId: 'us_special_advisor')
-      ..turn = 6;
+  Future<void> pumpMap(
+    WidgetTester tester,
+    double escalation, {
+    AppLang lang = AppLang.de,
+  }) async {
+    final state =
+        GameState.newGame(seed: 1, roleId: 'us_special_advisor', lang: lang)
+          ..turn = 6;
     state.metrics[Metric.escalation] = escalation;
     await tester.pumpWidget(
       MaterialApp(
@@ -38,6 +44,14 @@ void main() {
     await pumpMap(tester, 10);
     expect(find.textContaining('STUFE 1'), findsOneWidget);
     expect(find.textContaining('Friedenslage'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Englischer Modus zeigt LEVEL statt STUFE', (tester) async {
+    await pumpMap(tester, 10, lang: AppLang.en);
+    expect(find.textContaining('LEVEL 1'), findsOneWidget);
+    expect(find.textContaining('Peacetime posture'), findsOneWidget);
+    expect(find.textContaining('STUFE'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

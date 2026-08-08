@@ -14,17 +14,23 @@ class AppTheme {
   static const Color line = Color(0xFF29424D);
   static const Color lineSoft = Color(0x662F5361);
 
+  // Alarmfarben folgen der Luftfahrt-Logik (Advisory → Caution → Warning):
+  // Grün = nominal (P1-Phosphor), Blau = Hinweis, Amber = Caution
+  // (P3-Phosphor), Rot-Orange = Warning, Karmesin = unmittelbare Gefahr.
+  // Rot und Danger liegen bewusst auf getrennten Farbtönen, damit die
+  // Eskalationsleiter oben nicht in zwei gleiche Pinks kollabiert.
   static const Color amber = Color(0xFFFFC34D);
   static const Color teal = Color(0xFF28BFB1);
   static const Color tealBright = Color(0xFF65E3D0);
   static const Color blue = Color(0xFF62C8FF);
-  static const Color red = Color(0xFFFF5A61);
+  static const Color red = Color(0xFFFF7A5C);
   static const Color danger = Color(0xFFFF4567);
-  static const Color green = Color(0xFF57D69A);
-  static const Color covert = Color(0xFF9B7CFF);
+  static const Color green = Color(0xFF5FD97B);
+  static const Color covert = Color(0xFFB18AF8);
   static const Color textPrimary = Color(0xFFF3F4EE);
   static const Color textSecondary = Color(0xFF91A5AE);
-  static const Color textFaint = Color(0xFF5D747E);
+  // 4,6:1 auf surface — kleinste Textstufe, die WCAG AA noch besteht.
+  static const Color textFaint = Color(0xFF6D8794);
 
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.topLeft,
